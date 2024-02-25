@@ -1,0 +1,94 @@
+# Examples of students
+students_list = [
+    {
+      "name": "Lamar",
+      "grade": 8,
+      "age": 12,
+},
+{  
+      "name_2":"Sebastian",
+      "grade_2": 9,
+      "age_2": 13
+},
+{
+      "name_3": "Alora",
+      "grade_3": 11,
+      "age_3": 16
+}
+]
+
+
+# Welcome to system
+print("Welcome to Hogwarts High School. What would you like to do?")
+choice = input(" 1.Accept\n 2.Display\n 3.Delete\n 4.Update\n 5.Search\n: ")
+
+class Students:
+    def __init__(self, name, grade, age):
+        self.name = name
+        self.grade = grade
+        self.age = age
+    def display_student(name, grade, age):
+        print(name, grade, age)
+    def delete_student(name, grade, age):
+        name = input("Enter student's name: ")
+        grade = input("Enter student's grade: ")
+        age = input("Enter student's age: ")
+        students_list.pop(name, grade, age)
+    def update_student(name, grade, age):
+        name = input("Enter student's name: ")
+        grade = input("Enter student's grade: ")
+        age = input("Enter student's age: ")
+        update_dict = {"name": name, "grade": grade, "age": age}
+        students_list.update(update_dict)
+    def search_student(self):
+        name = input("Enter student's name: ")
+        grade = input("Enter student's grade: ")
+        age = input("Enter student's age: ")
+        if name and grade and age in students_list:
+            print(student)
+        else:
+            print("The student you are searching for is not in the system.") 
+    def accept_student(self):
+        name = input("Enter student's name: ")
+        grade = input("Enter student's grade: ")
+        age = input("Enter student's age: ")
+        students_list.append({"name_4": name, "grade_4": grade, "age_4": age})
+
+
+
+student = Students("Roy", 8, 17)
+
+if choice == "Accept":
+    student.accept_student()
+    print("Name:", students_list["name_4"])
+    print("Grade:", students_list["grade_4"])
+    print("Age:", students_list["age_4"])
+    print("Addition of student to system is successful.")
+elif choice == "Display":
+    for person in students_list:
+     print("Student:")
+     for key, value in person.items():
+        print(key + ": " + str(value))
+     print()      
+elif choice == "Delete":
+    student.delete_student()
+    print("Deletion of student successful.")
+elif choice == "Update":
+    student.update_student()
+    print("Update of student in system successful.")
+elif choice == "Search":
+    student.search_student()
+
+else:
+    print("Invalid choice. Please select one of the above choices.")
+
+# Closing remarks
+print("We look forward to working to giving you more innovative services in future. If you have any complaints write them below. ")
+complaints = input()
+if "slow" or "trouble" or "inconvinience":
+    print("We are very sorry for the issues with our system. We will fix the problems so as to have a much better experience with our system next time.")
+else:
+    print("We will take the issue into consideration and fix it as soon as possible")
+
+print("Thank you for choosing Hogwarts High School as your school of choice.")
+
