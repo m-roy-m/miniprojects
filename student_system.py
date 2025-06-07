@@ -1,94 +1,98 @@
-# Examples of students
-students_list = [
-    {
-      "name": "Lamar",
-      "grade": 8,
-      "age": 12,
-},
-{  
-      "name_2":"Sebastian",
-      "grade_2": 9,
-      "age_2": 13
-},
-{
-      "name_3": "Alora",
-      "grade_3": 11,
-      "age_3": 16
-}
-]
+from flask import Flask, request, redirect, render_template_string
 
+app = Flask(__name__)
 
-# Welcome to system
-print("Welcome to Hogwarts High School. What would you like to do?")
-choice = input(" 1.Accept\n 2.Display\n 3.Delete\n 4.Update\n 5.Search\n: ")
+# our magical student vault
+students = []
 
-class Students:
-    def __init__(self, name, grade, age):
-        self.name = name
-        self.grade = grade
-        self.age = age
-    def display_student(name, grade, age):
-        print(name, grade, age)
-    def delete_student(name, grade, age):
-        name = input("Enter student's name: ")
-        grade = input("Enter student's grade: ")
-        age = input("Enter student's age: ")
-        students_list.pop(name, grade, age)
-    def update_student(name, grade, age):
-        name = input("Enter student's name: ")
-        grade = input("Enter student's grade: ")
-        age = input("Enter student's age: ")
-        update_dict = {"name": name, "grade": grade, "age": age}
-        students_list.update(update_dict)
-    def search_student(self):
-        name = input("Enter student's name: ")
-        grade = input("Enter student's grade: ")
-        age = input("Enter student's age: ")
-        if name and grade and age in students_list:
-            print(student)
-        else:
-            print("The student you are searching for is not in the system.") 
-    def accept_student(self):
-        name = input("Enter student's name: ")
-        grade = input("Enter student's grade: ")
-        age = input("Enter student's age: ")
-        students_list.append({"name_4": name, "grade_4": grade, "age_4": age})
+# homepage + display + form
+@app.route("/")
+def home():
+    return render_template_string("""
+        <h1>🏰 Welcome to Hogwarts High School Student System</h1>
 
+        <form method="POST" action="/add">
+            <h3>🧑‍🎓 Add a Student</h3>
+            Name: <input name="name"><br>
+            Grade: <input name="grade"><br>
+            Age: <input name="age"><br>
+            <button type="submit">Add</button>
+        </form>
 
+        <form method="GET" action="/search">
+            <h3>🔍 Search a Student</h3>
+            Name: <input name="query"><br>
+            <button type="submit">Search</button>
+        </form>
 
-student = Students("Roy", 8, 17)
+        <h2>📜 Current Students</h2>
+        <ul>
+        {% for i, s in enumerate(students) %}
+            <li>
+                {{ s.name }} - Grade {{ s.grade }}, Age {{ s.age }}
+                [<a href="/delete/{{ i }}">Delete</a>]
+                [<a href="/update/{{ i }}">Update</a>]
+            </li>
+        {% endfor %}
+        </ul>
+    """, students=students)
 
-if choice == "Accept":
-    student.accept_student()
-    print("Name:", students_list["name_4"])
-    print("Grade:", students_list["grade_4"])
-    print("Age:", students_list["age_4"])
-    print("Addition of student to system is successful.")
-elif choice == "Display":
-    for person in students_list:
-     print("Student:")
-     for key, value in person.items():
-        print(key + ": " + str(value))
-     print()      
-elif choice == "Delete":
-    student.delete_student()
-    print("Deletion of student successful.")
-elif choice == "Update":
-    student.update_student()
-    print("Update of student in system successful.")
-elif choice == "Search":
-    student.search_student()
+# add student
+@app.route("/add", methods=["POST"])
+def add_student():
+    name = request.form["name"]
+    grade = request.form["grade"]
+    age = request.form["age"]
+    students.append({"name": name, "grade": grade, "age": age})
+    return redirect("/")
 
-else:
-    print("Invalid choice. Please select one of the above choices.")
+# delete student
+@app.route("/delete/<int:index>")
+def delete_student(index):
+    if 0 <= index < len(students):
+        students.pop(index)
+    return redirect("/")
 
-# Closing remarks
-print("We look forward to working to giving you more innovative services in future. If you have any complaints write them below. ")
-complaints = input()
-if "slow" or "trouble" or "inconvinience":
-    print("We are very sorry for the issues with our system. We will fix the problems so as to have a much better experience with our system next time.")
-else:
-    print("We will take the issue into consideration and fix it as soon as possible")
+# update form
+@app.route("/update/<int:index>", methods=["GET", "POST"])
+def update_student(index):
+    if request.method == "POST":
+        students[index]["name"] = request.form["name"]
+        students[index]["grade"] = request.form["grade"]
+        students[index]["age"] = request.form["age"]
+        return redirect("/")
+    
+    student = students[index]
+    return render_template_string("""
+        <h2>📝 Update Student</h2>
+        <form method="POST">
+            Name: <input name="name" value="{{ student.name }}"><br>
+            Grade: <input name="grade" value="{{ student.grade }}"><br>
+            Age: <input name="age" value="{{ student.age }}"><br>
+            <button type="submit">Update</button>
+        </form>
+        <a href="/">Back</a>
+    """, student=student)
 
-print("Thank you for choosing Hogwarts High School as your school of choice.")
+# search student by name
+@app.route("/search")
+def search_student():
+    query = request.args.get("query", "").lower()
+    results = [s for s in students if query in s["name"].lower()]
+    return render_template_string("""
+        <h2>🔍 Search Results</h2>
+        {% if results %}
+            <ul>
+            {% for s in results %}
+                <li>{{ s.name }} - Grade {{ s.grade }}, Age {{ s.age }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No student found named '{{ query }}'.</p>
+        {% endif %}
+        <a href="/">Back</a>
+    """, results=results, query=query)
 
+# run the thing
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
